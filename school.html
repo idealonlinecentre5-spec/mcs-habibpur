@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>স্কুল ম্যানেজমেন্ট</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--k:#0a0101;--o:#ed8b36;--b:#2349c6;--r:#c62828}
+*{box-sizing:border-box}body{margin:0;font-family:'Hind Siliguri','Noto Sans Bengali',sans-serif;background:#f4f5f7;color:#222;line-height:1.6}
+.tabs{background:var(--k);display:flex;overflow-x:auto;position:sticky;top:0;z-index:10}
+.tabs button{color:#c1c1c1;background:0;border:0;font:inherit;padding:12px 16px;white-space:nowrap;cursor:pointer}
+.tabs button.on{color:var(--o);border-bottom:3px solid var(--o)}
+.w{max-width:900px;margin:auto;padding:14px}
+.cd{background:#fff;border:1px solid #e2e5ea;border-radius:12px;padding:14px;margin-bottom:14px}
+.cd h3{margin:0 0 8px;font-size:18px}
+input,select,textarea{width:100%;padding:10px;margin:4px 0 8px;border:1px solid #cfd8e3;border-radius:6px;font:inherit;background:#fff}
+.bt{background:var(--k);color:#fff;border:0;border-radius:6px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer}.bt:hover{background:var(--o)}
+.bt.s{background:#eee;color:#222}.bt.d{background:var(--r)}
+.it{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee}
+.it small{color:#666;display:block}
+.row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;align-items:center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:560px){.g2{grid-template-columns:1fr}}
+#tt{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:8px;display:none;z-index:60;max-width:92vw;text-align:center}
+.lock{text-align:center;padding:40px 14px}
+</style></head><body>
+<div id="lock" class="lock">লোড হচ্ছে…</div>
+<div id="app" style="display:none">
+<div class="tabs" id="tabs">
+ <button data-t="notices" class="on">📢 নোটিশ</button><button data-t="teachers">🧑‍🏫 শিক্ষক</button><button data-t="subjects">📚 বিষয়</button><button data-t="results">📝 ফলাফল</button><button data-t="admissions">🎓 ভর্তি আবেদন</button><button data-t="settings">⚙️ সেটিংস</button>
+</div>
+<div class="w">
+
+<div id="p-notices">
+ <div class="cd"><h3>নতুন নোটিশ</h3><input id="n_t" placeholder="শিরোনাম"><input id="n_d" type="date"><textarea id="n_x" rows="4" placeholder="বিস্তারিত"></textarea><button class="bt" id="n_s">যোগ করুন</button></div>
+ <div class="cd"><h3>সব নোটিশ</h3><div id="n_l"></div></div>
+</div>
+
+<div id="p-teachers" style="display:none">
+ <div class="cd"><h3>নতুন শিক্ষক / সদস্য</h3><input id="t_n" placeholder="নাম"><input id="t_p" placeholder="পদবী (যেমন: প্রধান শিক্ষক)"><button class="bt" id="t_s">যোগ করুন</button></div>
+ <div class="cd"><h3>তালিকা</h3><div id="t_l"></div></div>
+</div>
+
+<div id="p-subjects" style="display:none">
+ <div class="cd"><h3>নতুন বিষয়</h3><select id="s_c"><option>প্রাক-প্রাথমিক</option><option>প্রথম</option><option>দ্বিতীয়</option><option>তৃতীয়</option><option>চতুর্থ</option><option>পঞ্চম</option></select><input id="s_n" placeholder="বিষয়ের নাম"><button class="bt" id="s_s">যোগ করুন</button></div>
+ <div class="cd"><h3>তালিকা</h3><div id="s_l"></div></div>
+</div>
+
+<div id="p-results" style="display:none">
+ <div class="cd"><h3>ফলাফল যোগ করুন</h3>
+  <div class="g2"><input id="r_i" placeholder="Student ID"><input id="r_p" placeholder="PIN"></div>
+  <input id="r_n" placeholder="শিক্ষার্থীর নাম">
+  <div class="g2"><input id="r_c" placeholder="শ্রেণি"><input id="r_r" placeholder="রোল"></div>
+  <input id="r_e" placeholder="পরীক্ষার নাম (যেমন: বার্ষিক পরীক্ষা ২০২৬)">
+  <div id="r_rows"></div>
+  <button class="bt s" id="r_a">+ বিষয় যোগ</button> <button class="bt" id="r_s">সেভ করুন</button>
+ </div>
+ <div class="cd"><h3>সংরক্ষিত ফলাফল</h3><div id="r_l"></div></div>
+</div>
+
+<div id="p-admissions" style="display:none">
+ <div class="cd"><h3>ভর্তি আবেদন</h3><div id="a_l"></div></div>
+</div>
+
+<div id="p-settings" style="display:none">
+ <div class="cd"><h3>স্কুলের তথ্য</h3><input id="st_n" placeholder="স্কুলের নাম"><input id="st_a" placeholder="ঠিকানা"><input id="st_p" placeholder="ফোন"><button class="bt" id="st_s">সেভ করুন</button></div>
+ <div class="cd"><button class="bt d" id="out">লগআউট</button></div>
+</div>
+
+</div></div>
+<div id="tt"></div>
+<script>
+const FB={apiKey:"AIzaSyBlz3SJwscg0ebDXiZu3I6fpQC0qdxv0zI",authDomain:"mcs-habibpur.firebaseapp.com",projectId:"mcs-habibpur",storageBucket:"mcs-habibpur.firebasestorage.app",messagingSenderId:"95047938599",appId:"1:95047938599:web:754724808fed90ef2ed402"};
+const CDNS=[
+ ['https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js','https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js','https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'],
+ ['https://cdn.jsdelivr.net/npm/firebase@10.12.0/app/+esm','https://cdn.jsdelivr.net/npm/firebase@10.12.0/auth/+esm','https://cdn.jsdelivr.net/npm/firebase@10.12.0/firestore/+esm']
+];
+async function loadFb(){
+ for(const set of CDNS){
+  try{return await Promise.all(set.map(u=>import(u)))}catch(e){console.warn('CDN failed',set[0],e)}
+ }
+ throw new Error('Firebase কোনো CDN থেকেই লোড হয়নি। ইন্টারনেট/ব্লকার দেখুন।');
+}
+const $=i=>document.getElementById(i);
+const E=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+const toast=m=>{const t=$('tt');t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3500)};
+let A,U,F;
+
+async function init(){
+ try{
+  const[a,u,f]=await loadFb();
+  const app=a.initializeApp(FB);F=f;A=u.getAuth(app);U=u;window.DB=f.initializeFirestore(app,{experimentalForceLongPolling:true,useFetchStreams:false});
+  u.onAuthStateChanged(A,user=>{
+   if(!user){$('app').style.display='none';$('lock').style.display='block';$('lock').textContent='🔐 আগে ওয়েবসাইট থেকে লগইন করুন।';return}
+   $('lock').style.display='none';$('app').style.display='block';boot();
+  });
+ }catch(e){console.error(e);$('lock').textContent='Firebase লোড হয়নি: '+(e.message||e)}
+}
+
+/* ---------- helpers ---------- */
+const col=async n=>(await F.getDocs(F.collection(DB,n))).docs.map(d=>({id:d.id,...d.data()}));
+const del=async(n,id)=>{if(!confirm('মুছে ফেলবেন?'))return false;try{await F.deleteDoc(F.doc(DB,n,id));toast('মুছে ফেলা হয়েছে');return true}catch(e){err(e);return false}};
+const err=e=>{console.error(e);toast('সমস্যা: '+(e.code==='permission-denied'?'Firestore Rules অনুমতি দিচ্ছে না':(e.code||e.message)))};
+function item(title,sub,onDel){const r=E('div','it'),l=E('div');l.append(E('b','',title));if(sub)l.append(E('small','',sub));const b=E('button','bt d','মুছুন');b.onclick=onDel;r.append(l,b);return r}
+function fillList(id,items,empty){$(id).replaceChildren(...(items.length?items:[E('p','',empty)]))}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x==b));
+ ['notices','teachers','subjects','results','admissions','settings'].forEach(t=>$('p-'+t).style.display=t==b.dataset.t?'block':'none');
+});
+
+/* ---------- notices ---------- */
+async function loadNotices(){
+ try{const N=(await col('notices')).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  fillList('n_l',N.map(n=>item(n.title,n.date,async()=>{if(await del('notices',n.id))loadNotices()})),'কোনো নোটিশ নেই')}catch(e){err(e)}
+}
+$('n_s').onclick=async()=>{
+ const title=$('n_t').value.trim();if(!title)return toast('শিরোনাম দিন');
+ try{await F.addDoc(F.collection(DB,'notices'),{title,date:$('n_d').value||new Date().toISOString().slice(0,10),details:$('n_x').value.trim()});
+  $('n_t').value=$('n_x').value='';toast('নোটিশ যোগ হয়েছে');loadNotices()}catch(e){err(e)}
+};
+
+/* ---------- teachers ---------- */
+async function loadTeachers(){
+ try{const T=await col('teachers');
+  fillList('t_l',T.map(t=>item(t.name,t.post,async()=>{if(await del('teachers',t.id))loadTeachers()})),'কোনো শিক্ষক নেই')}catch(e){err(e)}
+}
+$('t_s').onclick=async()=>{
+ const name=$('t_n').value.trim();if(!name)return toast('নাম দিন');
+ try{await F.addDoc(F.collection(DB,'teachers'),{name,post:$('t_p').value.trim()});$('t_n').value=$('t_p').value='';toast('যোগ হয়েছে');loadTeachers()}catch(e){err(e)}
+};
+
+/* ---------- subjects ---------- */
+async function loadSubjects(){
+ try{const S=await col('subjects');
+  fillList('s_l',S.map(s=>item(s.name,'শ্রেণি: '+s.cls,async()=>{if(await del('subjects',s.id))loadSubjects()})),'কোনো বিষয় নেই')}catch(e){err(e)}
+}
+$('s_s').onclick=async()=>{
+ const name=$('s_n').value.trim();if(!name)return toast('বিষয়ের নাম দিন');
+ try{await F.addDoc(F.collection(DB,'subjects'),{cls:$('s_c').value,name});$('s_n').value='';toast('যোগ হয়েছে');loadSubjects()}catch(e){err(e)}
+};
+
+/* ---------- results ---------- */
+function addRow(v){
+ v=v||{};const r=E('div','row');
+ const s=E('input');s.placeholder='বিষয়';s.value=v.subject||'';
+ const f=E('input');f.type='number';f.placeholder='পূর্ণমান';f.value=v.full||100;
+ const g=E('input');g.type='number';g.placeholder='প্রাপ্ত';g.value=v.got||'';
+ const x=E('button','bt d','✕');x.onclick=()=>r.remove();
+ r.append(s,f,g,x);$('r_rows').append(r);
+}
+$('r_a').onclick=()=>addRow();
+async function loadResults(){
+ try{const R=await col('results');
+  fillList('r_l',R.map(r=>item((r.name||'')+' · '+(r.cls||''),'ID-PIN: '+r.id+(r.exam?' · '+r.exam:''),async()=>{if(await del('results',r.id))loadResults()})),'কোনো ফলাফল নেই')}catch(e){err(e)}
+}
+$('r_s').onclick=async()=>{
+ const id=$('r_i').value.trim(),pin=$('r_p').value.trim(),name=$('r_n').value.trim();
+ if(!id||!pin||!name)return toast('ID, PIN ও নাম দিন');
+ if((id+pin).includes('/'))return toast('ID/PIN-এ "/" চলবে না');
+ const rows=[...$('r_rows').children].map(r=>{const i=r.querySelectorAll('input');return{subject:i[0].value.trim(),full:+i[1].value||0,got:+i[2].value||0}}).filter(r=>r.subject);
+ if(!rows.length)return toast('অন্তত একটি বিষয় দিন');
+ try{await F.setDoc(F.doc(DB,'results',id+'-'+pin),{name,cls:$('r_c').value.trim(),roll:$('r_r').value.trim(),exam:$('r_e').value.trim(),rows});
+  toast('ফলাফল সেভ হয়েছে');['r_i','r_p','r_n','r_c','r_r'].forEach(i=>$(i).value='');$('r_rows').replaceChildren();addRow();loadResults()}catch(e){err(e)}
+};
+
+/* ---------- admissions ---------- */
+async function loadAdm(){
+ try{const L=(await col('admissions')).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  fillList('a_l',L.map(a=>item(a.name+' ('+a.class+')','অভিভাবক: '+(a.guardian||'-')+' · মোবাইল: '+a.mobile+' · '+(a.address||'')+' · '+(a.date||''),async()=>{if(await del('admissions',a.id))loadAdm()})),'কোনো আবেদন নেই')}catch(e){err(e)}
+}
+
+/* ---------- settings ---------- */
+async function loadSettings(){
+ try{const s=await F.getDoc(F.doc(DB,'settings','main'));if(s.exists()){const d=s.data();$('st_n').value=d.school_name||'';$('st_a').value=d.contact_address||'';$('st_p').value=d.contact_phone||''}}catch(e){err(e)}
+}
+$('st_s').onclick=async()=>{
+ try{await F.setDoc(F.doc(DB,'settings','main'),{school_name:$('st_n').value.trim(),contact_address:$('st_a').value.trim(),contact_phone:$('st_p').value.trim()},{merge:true});toast('সেটিংস সেভ হয়েছে')}catch(e){err(e)}
+};
+$('out').onclick=async()=>{try{await U.signOut(A);toast('লগআউট হয়েছে')}catch(e){err(e)}};
+
+let booted=false;
+function boot(){
+ if(booted)return;booted=true;
+ $('n_d').value=new Date().toISOString().slice(0,10);addRow();
+ loadNotices();loadTeachers();loadSubjects();loadResults();loadAdm();loadSettings();
+}
+init();
+</script></body></html>
